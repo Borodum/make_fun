@@ -1,0 +1,50 @@
+# Byte-compiled / cache
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environments
+.env
+.venv/
+env/
+venv/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# IDE / Editor settings
+.vscode/
+.idea/
+*.swp
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Environment/config files with secrets
+*.env
+secrets.json
+
+# Build outputs
+/dist
+/build
+*.egg-info/
+
+# Data & models (large, generated, not source!)
+/data/
+/datasets/
+/checkpoints/
+/models/
+/outputs/
+/runs/
+/wandb/
+
+# Node.js dependencies (if you have web frontend)
+/node_modules/
+
+# Temporary
+*.tmp
+*.bak
