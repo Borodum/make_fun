@@ -1,0 +1,8 @@
+@InProceedings{Li_2023_ICCV,
+    author    = {Li, Runjia and Sun, Shuyang and Elhoseiny, Mohamed and Torr, Philip},
+    title     = {OxfordTVG-HIC: Can Machine Make Humorous Captions from Images?},
+    booktitle = {Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV)},
+    month     = {October},
+    year      = {2023},
+    pages     = {20293-20303}
+}
