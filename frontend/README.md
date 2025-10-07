@@ -1,10 +1,3 @@
-
-  # Joke Generator Website
-
-  This is a small frontend for the "Joke Generator" web app — a UI for uploading images and generating jokes/captions.
-
-  The original design is available on Figma: https://www.figma.com/design/hV5FpAsjdx3nApFfg3QQSC/Joke-Generator-Website
-
   ## Quick start
 
   Requirements:
