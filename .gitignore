@@ -44,6 +44,9 @@ secrets.json
 
 # Node.js dependencies (if you have web frontend)
 /node_modules/
+# Ignore frontend-specific node_modules and build output explicitly
+frontend/node_modules/
+frontend/dist/
 
 # Temporary
 *.tmp
