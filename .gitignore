@@ -37,7 +37,7 @@ secrets.json
 /data/
 /datasets/
 /checkpoints/
-/models/
+
 /outputs/
 /runs/
 /wandb/
@@ -48,3 +48,6 @@ secrets.json
 # Temporary
 *.tmp
 *.bak
+
+/models/joke_generator/
+/models/joke_generator_model/
