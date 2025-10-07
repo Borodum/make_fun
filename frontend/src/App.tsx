@@ -17,24 +17,28 @@ export default function App() {
 
   const generateJokes = async () => {
     if (!imageUrl) return;
-    
+
     setIsGenerating(true);
-    
-    // Симуляция генерации шуток
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    const mockJokes = [
-      "Когда фотошоп решил, что у тебя недостаточно красивый день, он добавил немного фильтров... и твоего бывшего на задний план!",
-      "Это фото настолько эпичное, что даже камера попросила автограф!",
-      "Если бы эта картинка могла говорить, она бы сказала: 'Я слишком крута для этого мира!'"
-    ];
-    
-    const generatedJokes = mockJokes.map((text, index) => ({
+
+    const response = await fetch(imageUrl);
+    const blob = await response.blob();
+
+    const formData = new FormData();
+    formData.append("file", blob, "uploaded_image.png");
+
+    const res = await fetch("http://127.0.0.1:8000/images/upload/", {
+      method: "POST",
+      body: formData,
+    });
+
+    const data = await res.json();
+
+    const generatedJokes = data.jokes.map((text: string, index: number) => ({
       id: Date.now() + index,
       text,
-      rating: 0
+      rating: 0,
     }));
-    
+
     setJokes(generatedJokes);
     setIsGenerating(false);
   };
