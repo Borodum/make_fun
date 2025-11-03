@@ -99,7 +99,7 @@ export function ImageUpload({ onImageSelect }: ImageUploadProps) {
             <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
               <div className="text-white text-center">
                 <Upload className="w-8 h-8 mx-auto mb-2" />
-                <p>Нажмите, чтобы изменить</p>
+                <p>Click to change</p>
               </div>
             </div>
           </div>
@@ -110,10 +110,10 @@ export function ImageUpload({ onImageSelect }: ImageUploadProps) {
             </div>
             <div>
               <p className="mb-2">
-                <span className="text-primary">Нажмите для выбора</span> или перетащите изображение
+                <span className="text-primary">Click to select</span> or drag and drop an image
               </p>
               <p className="text-sm text-muted-foreground">
-                Вы также можете вставить изображение из буфера обмена (Ctrl+V)
+                You can also paste an image from your clipboard (Ctrl+V)
               </p>
             </div>
           </div>
