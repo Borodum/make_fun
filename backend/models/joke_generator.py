@@ -1,16 +1,17 @@
+import asyncio
 import base64
 import os
 
 from io import BytesIO
 import numpy as np
 from PIL import Image
-from openai import OpenAI, RateLimitError
+from openai import AsyncOpenAI, RateLimitError
 from dotenv import load_dotenv
 
 
 class Img_to_text:
     def __init__(self, api_key):
-        self.client = OpenAI(
+        self.client = AsyncOpenAI(
             api_key=api_key,
             base_url="https://openrouter.ai/api/v1",)
         self.MODEL = "google/gemini-2.0-flash-exp:free"
@@ -44,7 +45,7 @@ class Img_to_text:
         pil_image.save(buffered, format="JPEG")
         img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
         return f"data:image/jpeg;base64,{img_str}"
-    
+
     def get_image_content(self, image_input):
         if isinstance(image_input, str):  # Assume URL
             return {"type": "image_url", "image_url": {"url": image_input}}
@@ -54,7 +55,7 @@ class Img_to_text:
         else:
             raise ValueError("Image input must be a URL (str) or numpy.ndarray")
     
-    def get_description(self, image_input):
+    async def get_description(self, image_input):
         if image_input == 'ndarray':
             sample_array = np.zeros((100, 100, 3), dtype=np.uint8)
             image_content = self.get_image_content(sample_array)
@@ -65,16 +66,23 @@ class Img_to_text:
             "role": "user",
             "content": [image_content]
         })
-        try:
-            response = self.client.chat.completions.create(
-                model=self.MODEL,
-                messages=self.messages
-            )
-        except Exception as e:
-            self.responded = False
-            return e
-        
-        description = response.choices[0].message.content
+        num_attempts = 3
+        description = "description failed"
+        for attempt in range(num_attempts):
+            try:
+                response = await self.client.chat.completions.create(
+                    model=self.MODEL,
+                    messages=self.messages
+                )
+                description = response.choices[0].message.content
+            except RateLimitError:
+                wait_time = (attempt + 1) * 2
+                print(f"Rate limit hit. Retrying in {wait_time} seconds...", flush=True)
+                await asyncio.sleep(wait_time)
+            except Exception as e:
+                self.responded = False
+                return e
+
         with open("respond.txt", "a") as respond:
             respond.write("\n")
             respond.write(description)
@@ -87,7 +95,7 @@ class Img_to_text:
 
 class Text_to_joke:
     def __init__(self, api_key):
-        self.client = OpenAI(
+        self.client = AsyncOpenAI(
             api_key=api_key,
             base_url="https://openrouter.ai/api/v1",)
         self.MODEL = "deepseek/deepseek-r1-0528-qwen3-8b:free"
@@ -110,25 +118,28 @@ class Text_to_joke:
         self.messages = [{"role": "system", "content": self.SYSTEM_PROMPT}]
         
 
-    def get_joke(self, text):
+    async def get_joke(self, text):
         self.messages.append({
             "role": "user",
             "content": text
         })
-        try:
-            response = self.client.chat.completions.create(
-                model=self.MODEL,
-                messages=self.messages
-            )
-        except Exception as e:
-            return e
-        # response = self.client.chat.completions.create(
-        #         model=self.MODEL,
-        #         messages=self.messages
-        #     )
-        joke = response.choices[0].message.content
-        self.messages.append({"role": "assistant", "content": joke})
-        return joke
+        num_attempts = 3
+        for attempt in range(num_attempts):
+            try:
+                response = await self.client.chat.completions.create(
+                    model=self.MODEL,
+                    messages=self.messages
+                )
+                joke = response.choices[0].message.content
+                self.messages.append({"role": "assistant", "content": joke})
+                return joke
+            except RateLimitError:
+                wait_time = (attempt + 1) * 2
+                print(f"Rate limit hit. Retrying in {wait_time} seconds...", flush=True)
+                await asyncio.sleep(wait_time)
+            except Exception as e:
+                return e
+        return "joke failed"
 
 load_dotenv()
 
@@ -137,8 +148,9 @@ api_key = os.getenv("API_KEY")
 img_to_text = Img_to_text(api_key=api_key)
 text_to_joke = Text_to_joke(api_key=api_key)
 
-def get_joke(img_url):
-
-    description = img_to_text.get_description(img_url)
-    joke = text_to_joke.get_joke(description)
+async def get_joke(img_url):
+    description = await img_to_text.get_description(img_url)
+    print(description, flush=True)
+    joke = await text_to_joke.get_joke(description)
+    print(joke, flush=True)
     return joke

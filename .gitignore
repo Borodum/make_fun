@@ -52,5 +52,5 @@ frontend/dist/
 *.tmp
 *.bak
 
-/models/joke_generator/
-/models/joke_generator_model/
+/backend/models/joke_generator/
+/backend/models/joke_generator_model/

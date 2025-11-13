@@ -20,17 +20,20 @@ export default function App() {
     if (!imageUrl) return;
     
     setIsGenerating(true);
+
+    const res = await fetch("http://127.0.0.1:8000/images/upload/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        url: imageUrl
+      }),
+    });
+
+    const data = await res.json();
     
-    // Simulate joke generation
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    const mockJokes = [
-      "When Photoshop decided your day wasn't pretty enough, it added some filters... and your ex in the background!",
-      "This photo is so epic, even the camera asked for an autograph!",
-      "If this picture could talk, it would say: 'I'm too cool for this world!'"
-    ];
-    
-    const generatedJokes = mockJokes.map((text, index) => ({
+    const generatedJokes = data.jokes.map((text, index) => ({
       id: Date.now() + index,
       text,
       funnyScore: 0,
