@@ -1,9 +1,11 @@
 import base64
+import os
+
 from io import BytesIO
-import time
 import numpy as np
 from PIL import Image
 from openai import OpenAI, RateLimitError
+from dotenv import load_dotenv
 
 
 class Img_to_text:
@@ -120,17 +122,20 @@ class Text_to_joke:
             )
         except Exception as e:
             return e
-        response = self.client.chat.completions.create(
-                model=self.MODEL,
-                messages=self.messages
-            )
+        # response = self.client.chat.completions.create(
+        #         model=self.MODEL,
+        #         messages=self.messages
+        #     )
         joke = response.choices[0].message.content
         self.messages.append({"role": "assistant", "content": joke})
         return joke
 
+load_dotenv()
 
-img_to_text = Img_to_text(api_key="")
-text_to_joke = Text_to_joke(api_key="")
+api_key = os.getenv("API_KEY")
+
+img_to_text = Img_to_text(api_key=api_key)
+text_to_joke = Text_to_joke(api_key=api_key)
 
 def get_joke(img_url):
 
