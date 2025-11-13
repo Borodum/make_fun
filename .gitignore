@@ -54,3 +54,6 @@ frontend/dist/
 
 /backend/models/joke_generator/
 /backend/models/joke_generator_model/
+
+/backend/models/respond.txt
+/backend/respond.txt
