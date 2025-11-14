@@ -19,8 +19,8 @@ async def download_images():
     with open(CSV_PATH, "r", encoding="utf-8") as f:
         reader = csv.DictReader(f)
 
-        # for row in tqdm(reader, desc="Downloading images"):
-        for row in reader:
+        for row in tqdm(reader, desc="Downloading images"):
+        # for row in reader:
             if idx >= 1000:
                 break
             image_id = row["image_id"]
