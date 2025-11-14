@@ -18,3 +18,5 @@ async def upload_image(data: ImageUrl):
     #     "Если бы эта картинка могла говорить, она бы сказала: 'Я слишком крута для этого мира!",
     # ]
     return {"jokes": jokes}
+
+
