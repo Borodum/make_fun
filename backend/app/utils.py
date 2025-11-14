@@ -59,7 +59,7 @@ async def index_images():
         if not filename.lower().endswith(("jpg", "png", "jpeg")):
             continue
 
-        path = os.path.join(folder, filename)
+        path = folder + "/" + filename
         try:
             vector = await text2img.encode_image(path)
         except Exception as e:
