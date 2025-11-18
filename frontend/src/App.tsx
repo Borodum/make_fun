@@ -1,131 +1,49 @@
-import { useState } from "react";
-import { ImageUpload } from "./components/ImageUpload";
-import { JokeCard } from "./components/JokeCard";
-import { Button } from "./components/ui/button";
-import { Sparkles, Loader2 } from "lucide-react";
-
-interface Joke {
-  id: number;
-  text: string;
-  funnyScore: number;
-  relevanceScore: number;
-}
+import { useState } from 'react';
+import JokeGenerator from './components/modes/JokeGenerator';
+import ImageSearch from './components/modes/ImageSearch';
 
 export default function App() {
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
-  const [jokes, setJokes] = useState<Joke[]>([]);
-  const [isGenerating, setIsGenerating] = useState(false);
-
-  const generateJokes = async () => {
-    if (!imageUrl) return;
-    
-    setIsGenerating(true);
-
-    const res = await fetch("http://127.0.0.1:8000/images/upload/", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        url: imageUrl
-      }),
-    });
-
-    const data = await res.json();
-    
-    const generatedJokes = data.jokes.map((text, index) => ({
-      id: Date.now() + index,
-      text,
-      funnyScore: 0,
-      relevanceScore: 0
-    }));
-    
-    setJokes(generatedJokes);
-    setIsGenerating(false);
-  };
-
-  const handleRateFunny = (jokeId: number, rating: number) => {
-    setJokes(prev => 
-      prev.map(joke => 
-        joke.id === jokeId ? { ...joke, funnyScore: rating } : joke
-      )
-    );
-  };
-
-  const handleRateRelevance = (jokeId: number, rating: number) => {
-    setJokes(prev => 
-      prev.map(joke => 
-        joke.id === jokeId ? { ...joke, relevanceScore: rating } : joke
-      )
-    );
-  };
+  const [activeMode, setActiveMode] = useState<'jokes' | 'images'>('jokes');
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-slate-50">
       <div className="container mx-auto px-4 py-8 max-w-6xl">
         {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="mb-3 flex items-center justify-center gap-3">
-            <Sparkles className="w-8 h-8 text-primary" />
-            Image Joke Generator
-          </h1>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            Upload any image and our AI will create hilarious jokes for you!
-          </p>
-        </div>
+        <header className="text-center mb-8">
+          <h1 className="text-[#032D68] mb-2">Balatro Jokers</h1>
+          <p className="text-gray-600">Upload an image to generate jokes or describe to find matching images</p>
+        </header>
 
-        {/* Image Upload Section */}
-        <div className="mb-8">
-          <ImageUpload onImageSelect={setImageUrl} />
-        </div>
-
-        {/* Generate Button */}
-        <div className="flex justify-center mb-12">
-          <Button
-            onClick={generateJokes}
-            disabled={!imageUrl || isGenerating}
-            size="lg"
-            className="min-w-[200px]"
-          >
-            {isGenerating ? (
-              <>
-                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                Generating...
-              </>
-            ) : (
-              <>
-                <Sparkles className="w-5 h-5 mr-2" />
-                Generate Jokes
-              </>
-            )}
-          </Button>
-        </div>
-
-        {/* Jokes Grid */}
-        {jokes.length > 0 && (
-          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <h2 className="mb-6 text-center">Generated Jokes</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {jokes.map((joke) => (
-                <JokeCard
-                  key={joke.id}
-                  joke={joke.text}
-                  funnyScore={joke.funnyScore}
-                  relevanceScore={joke.relevanceScore}
-                  onRateFunny={(rating) => handleRateFunny(joke.id, rating)}
-                  onRateRelevance={(rating) => handleRateRelevance(joke.id, rating)}
-                />
-              ))}
-            </div>
+        {/* Mode Switcher */}
+        <div className="flex justify-center mb-10">
+          <div className="bg-white rounded-full p-1.5 shadow-md inline-flex gap-1">
+            <button
+              onClick={() => setActiveMode('jokes')}
+              className={`px-6 py-3 rounded-full transition-all ${
+                activeMode === 'jokes'
+                  ? 'bg-[#032D68] text-white shadow-md'
+                  : 'text-gray-600 hover:text-[#032D68]'
+              }`}
+            >
+              Generate Jokes
+            </button>
+            <button
+              onClick={() => setActiveMode('images')}
+              className={`px-6 py-3 rounded-full transition-all ${
+                activeMode === 'images'
+                  ? 'bg-[#032D68] text-white shadow-md'
+                  : 'text-gray-600 hover:text-[#032D68]'
+              }`}
+            >
+              Find Images
+            </button>
           </div>
-        )}
+        </div>
 
-        {/* Empty State */}
-        {!imageUrl && jokes.length === 0 && (
-          <div className="text-center text-muted-foreground py-12">
-            <p>Upload an image to start generating jokes</p>
-          </div>
-        )}
+        {/* Mode Content */}
+        <div className="transition-all">
+          {activeMode === 'jokes' ? <JokeGenerator /> : <ImageSearch />}
+        </div>
       </div>
     </div>
   );
