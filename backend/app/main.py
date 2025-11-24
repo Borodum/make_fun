@@ -19,7 +19,7 @@ logging.basicConfig(
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     try:
-        qdrant.initialize(host="localhost", port=6333)
+        qdrant.initialize(host="qdrant", port=6333)
     except Exception as e:
         # In development, allow app to start even if Qdrant isn't available.
         logging.warning(f"Qdrant init failed (dev fallback): {e}")

@@ -1,3 +1,17 @@
 # Make_fun: An End-to-End Deep Learning Framework for Context-Aware Visual Humor Generation
 Make_fun is an ambitious deep learning project that explores the intersection of computer vision and natural language generation. The primary objective is to develop a novel AI system capable of analyzing the content of a graphic image (e.g., a photograph, meme, or illustration) and generating a contextually relevant, original joke or humorous comment.
 This project moves beyond simple image captioning by requiring the model to understand nuanced elements like absurdity, irony, sarcasm, and common cultural tropes to create humor that is not just descriptive but genuinely funny. The challenge lies in bridging the semantic gap between visual perception and the abstract, culturally-dependent nature of humor.
+
+# How to run
+
+## On CPU
+
+```
+docker-compose up --build
+```
+
+## On GPU
+
+```
+docker-compose -f docker-compose.gpu.yml up --build
+```
