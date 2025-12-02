@@ -21,7 +21,7 @@ async def download_images():
 
         for row in tqdm(reader, desc="Downloading images"):
         # for row in reader:
-            if idx >= 1000:
+            if idx >= 3000:
                 break
             image_id = row["image_id"]
             url = row["image_url"]

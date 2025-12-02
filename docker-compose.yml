@@ -15,6 +15,7 @@ services:
     volumes:
       - ./backend:/app
       - ./backend/datasets/oxford_hic/images:/app/datasets/oxford_hic/images
+      - ./backend/pretrained_models:/pretrained_models
     depends_on:
       - qdrant
     env_file:

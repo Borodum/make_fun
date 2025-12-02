@@ -2,6 +2,8 @@ from fastapi import APIRouter, UploadFile, File
 
 from models.joke_generator import get_joke
 from app.schemas.image import ImageUrl
+from app.models.img2caption import img2caption
+from app.models.caption2joke import caption2joke
 
 router = APIRouter(
     prefix="/images",
@@ -11,12 +13,8 @@ router = APIRouter(
 @router.post("/upload/")
 async def upload_image(data: ImageUrl):
     times = 3
-    jokes = [await get_joke(data.url) for _ in range(times)]
-    # jokes = [
-    #     "Когда фотошоп решил, что у тебя недостаточно красивый день, он добавил немного фильтров... и твоего бывшего на задний план!",
-    #     "Это фото настолько эпичное, что даже камера попросила автограф!",
-    #     "Если бы эта картинка могла говорить, она бы сказала: 'Я слишком крута для этого мира!",
-    # ]
+    caption = await img2caption.process(data.url)
+    jokes = [await caption2joke.process(caption) for _ in range(times)]
     return {"jokes": jokes}
 
 

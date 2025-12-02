@@ -12,8 +12,8 @@ class Text2ImgService:
         self.processor = None
 
     async def initialize(self):
-        self.model = (await run_blocking(CLIPModel.from_pretrained, "openai/clip-vit-base-patch32")).to(settings.device)
-        self.processor = await run_blocking(CLIPProcessor.from_pretrained, "openai/clip-vit-base-patch32")
+        self.model = (await run_blocking(CLIPModel.from_pretrained, "openai/clip-vit-base-patch32", cache_dir="pretrained_models")).to(settings.device)
+        self.processor = await run_blocking(CLIPProcessor.from_pretrained, "openai/clip-vit-base-patch32", cache_dir="pretrained_models")
 
     async def encode_image(self, path: str):
         img = cv2.imread(path)

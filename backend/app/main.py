@@ -1,3 +1,4 @@
+import asyncio
 import logging
 from contextlib import asynccontextmanager
 
@@ -6,6 +7,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from app.models.text2img import text2img
+from app.models.img2caption import img2caption
+from app.models.caption2joke import caption2joke
 from app.routers import image
 from app.routers import text2img_routers
 from app.services.qdrant import qdrant
@@ -23,16 +26,19 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         # In development, allow app to start even if Qdrant isn't available.
         logging.warning(f"Qdrant init failed (dev fallback): {e}")
+    await img2caption.initialize()
+    await caption2joke.initialize()
     await text2img.initialize()
     await download_images()
-    await index_images()
+    # await index_images()
+    app.state.images_load_task = asyncio.create_task(index_images())
     yield
 
 
 app = FastAPI(
-    docs_url="/api/swagger",
-    redoc_url="/api/redocly",
-    openapi_url="/api/schema",
+    docs_url="/swagger",
+    redoc_url="/redocly",
+    openapi_url="/schema",
     lifespan=lifespan,
 )
 # Configure CORS early so it applies to all routes (including mounted static)
