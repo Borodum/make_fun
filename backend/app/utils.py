@@ -8,6 +8,8 @@ from tqdm import tqdm
 from app.models.text2img import text2img
 from app.services.qdrant import qdrant
 
+from app.services.executor import run_blocking
+
 logger = logging.getLogger(__name__)
 
 CSV_PATH = "datasets/oxford_hic/oxford_hic_image_info.csv"
@@ -16,13 +18,17 @@ SAVE_FOLDER = "datasets/oxford_hic/images"
 async def download_images():
     os.makedirs(SAVE_FOLDER, exist_ok=True)
     idx = 0
+    names = []
     with open(CSV_PATH, "r", encoding="utf-8") as f:
         reader = csv.DictReader(f)
-
         for row in tqdm(reader, desc="Downloading images"):
         # for row in reader:
-            if idx >= 3000:
+            if idx >= 30000:
                 break
+            if idx % 100 == 0 and idx > 0:
+                await index_images(names)
+                logger.info(url + " idx: " + str(idx))
+                names = []
             image_id = row["image_id"]
             url = row["image_url"]
 
@@ -32,11 +38,12 @@ async def download_images():
 
             filename = os.path.join(SAVE_FOLDER, f"{image_id}.{ext}")
             idx += 1
+            names.append(f"{image_id}.{ext}")
             if os.path.exists(filename):
                 continue
 
             try:
-                r = requests.get(url, timeout=10)
+                r = await run_blocking(requests.get, url, timeout=10)
                 r.raise_for_status()
 
                 with open(filename, "wb") as img_file:
@@ -46,16 +53,51 @@ async def download_images():
                 logger.info(f"Failed to download {url}: {e}")
             if idx % 100 == 0:
                 logger.info(url + " idx: " + str(idx))
-
+    if names:
+        await index_images(names)
+        logger.info(url + " idx: " + str(idx))
+        names = []
     logger.info("All images downloaded!")
 
-async def index_images():
+# async def index_images():
+#     folder = "datasets/oxford_hic/images"
+#     os.makedirs(folder, exist_ok=True)
+#     points = []
+#     idx = 0
+#
+#     for filename in os.listdir(folder):
+#         if not filename.lower().endswith(("jpg", "png", "jpeg")):
+#             continue
+#
+#         path = folder + "/" + filename
+#         try:
+#             vector = await text2img.encode_image(path)
+#         except Exception as e:
+#             logger.info(f"Failed to process {path}: {e}")
+#             continue
+#
+#         points.append({
+#             "id": idx,
+#             "vector": vector,
+#             "payload": {"path": path}
+#         })
+#         idx += 1
+#         if idx % 100 == 0:
+#             logger.info("index: " + filename + " idx: " + str(idx))
+#             qdrant.add_points(points)
+#             points = []
+#
+#     qdrant.add_points(points)
+#     logger.info(f"Indexed {idx} images into Qdrant.")
+
+
+async def index_images(names):
     folder = "datasets/oxford_hic/images"
     os.makedirs(folder, exist_ok=True)
     points = []
     idx = 0
 
-    for filename in os.listdir(folder):
+    for filename in names:
         if not filename.lower().endswith(("jpg", "png", "jpeg")):
             continue
 
@@ -76,6 +118,6 @@ async def index_images():
             logger.info("index: " + filename + " idx: " + str(idx))
             qdrant.add_points(points)
             points = []
-
-    qdrant.add_points(points)
+    if points:
+        qdrant.add_points(points)
     logger.info(f"Indexed {idx} images into Qdrant.")

@@ -29,9 +29,10 @@ async def lifespan(app: FastAPI):
     await img2caption.initialize()
     await caption2joke.initialize()
     await text2img.initialize()
-    await download_images()
+    # await download_images()
     # await index_images()
-    app.state.images_load_task = asyncio.create_task(index_images())
+    # app.state.images_load_task = asyncio.create_task(index_images())
+    app.state.images_load_task = asyncio.create_task(download_images())
     yield
 
 
