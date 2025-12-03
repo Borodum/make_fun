@@ -38,7 +38,7 @@ async def download_images():
 
             filename = os.path.join(SAVE_FOLDER, f"{image_id}.{ext}")
             idx += 1
-            names.append(f"{image_id}.{ext}")
+            names.append((f"{image_id}.{ext}", idx))
             if os.path.exists(filename):
                 continue
 
@@ -95,9 +95,8 @@ async def index_images(names):
     folder = "datasets/oxford_hic/images"
     os.makedirs(folder, exist_ok=True)
     points = []
-    idx = 0
 
-    for filename in names:
+    for filename, idx in names:
         if not filename.lower().endswith(("jpg", "png", "jpeg")):
             continue
 
@@ -113,11 +112,12 @@ async def index_images(names):
             "vector": vector,
             "payload": {"path": path}
         })
-        idx += 1
-        if idx % 100 == 0:
-            logger.info("index: " + filename + " idx: " + str(idx))
-            qdrant.add_points(points)
-            points = []
+        # idx += 1
+        # if idx % 100 == 0:
+        #     logger.info("index: " + filename + " idx: " + str(idx))
+        #     qdrant.add_points(points)
+        #     points = []
     if points:
         qdrant.add_points(points)
-    logger.info(f"Indexed {idx} images into Qdrant.")
+    # print(qdrant.get_collection("images"))
+    logger.info(f"Indexed {names[-1][1]} images into Qdrant.")

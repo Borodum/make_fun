@@ -78,6 +78,6 @@ class QdrantService:
             return []
 
     def add_points(self, points):
-        self.client.upsert(self.collection_name, points)
+        self.client.upsert(collection_name=self.collection_name, points=points)
 
 qdrant = QdrantService()
