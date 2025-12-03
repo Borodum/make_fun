@@ -1,6 +1,7 @@
 import base64
 import io
 import json
+import logging
 import math
 import string
 from collections import defaultdict
@@ -20,6 +21,10 @@ from app.services.executor import run_blocking
 from nltk import word_tokenize
 from transformers import BlipProcessor, BlipForConditionalGeneration, ViTModel
 from transformers import LlamaForCausalLM, LlamaTokenizer
+import gdown
+import zipfile
+
+logger = logging.getLogger(__name__)
 
 
 def clean_tokenize(text):
@@ -346,6 +351,27 @@ class Img2CaptionService:
     async def initialize(self):
         await run_blocking(nltk.download, 'punkt')
         await run_blocking(nltk.download, 'punkt_tab')
+
+        DEST_DIR = "pretrained_models"
+        ZIP_PATH = "pretrained_models/img_2_text.zip"
+        EXTRACT_DIR = "pretrained_models/img_2_text"
+        os.makedirs(DEST_DIR, exist_ok=True)
+        if not os.path.exists(ZIP_PATH):
+            url = f"https://drive.google.com/file/d/1f-lJginrQ1FDN_eCW5IwBc9WHa5iaY6N/view?usp=sharing"
+            logger.info("img_2_text start downloading")
+            gdown.download(url, ZIP_PATH, quiet=False, fuzzy=True)
+            logger.info("img_2_text downloaded")
+        else:
+            logger.info("img_2_text already downloaded")
+
+        if not os.path.exists(EXTRACT_DIR):
+            os.makedirs(EXTRACT_DIR, exist_ok=True)
+            logger.info("Unpacking img_2_text.zip")
+            with zipfile.ZipFile(ZIP_PATH, "r") as z:
+                z.extractall(EXTRACT_DIR)
+            logger.info("Unpacked img_2_text.zip")
+        else:
+            logger.info("img_2_text.zip already unpacked")
 
         vocab_2014 = create_vocab("pretrained_models/img_2_text/captions_train2014.json")
         vocab_2017 = create_vocab("pretrained_models/img_2_text/captions_train2017.json")
